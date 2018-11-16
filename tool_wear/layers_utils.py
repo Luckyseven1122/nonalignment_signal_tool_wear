@@ -28,7 +28,7 @@ class SpatialPyramidPooling(Layer):
 
         self.pool_list = pool_list
 
-        self.num_outputs_per_channel = sum([i * i for i in pool_list])
+        self.num_outputs_per_channel = sum([i for i in pool_list])
 
         super(SpatialPyramidPooling, self).__init__(**kwargs)
 
@@ -65,18 +65,17 @@ class SpatialPyramidPooling(Layer):
         if self.dim_ordering == 'tf':
             for pool_num, num_pool_regions in enumerate(self.pool_list):
                 for jy in range(num_pool_regions):
-                    for ix in range(num_pool_regions):
-                        y1 = jy * row_length[pool_num]
-                        y2 = jy * row_length[pool_num] + row_length[pool_num]
-                        y1 = K.cast(K.round(y1), 'int32')
-                        y2 = K.cast(K.round(y2), 'int32')
+                    y1 = jy * row_length[pool_num]
+                    y2 = jy * row_length[pool_num] + row_length[pool_num]
+                    y1 = K.cast(K.round(y1), 'int32')
+                    y2 = K.cast(K.round(y2), 'int32')
 
-                        new_shape = [input_shape[0], y2 - y1,input_shape[2]]
+                    new_shape = [input_shape[0], y2 - y1, input_shape[2]]
 
-                        x_crop = x[:, y1:y2, :]
-                        xm = K.reshape(x_crop, new_shape)
-                        pooled_val = K.max(xm, axis=(1))
-                        outputs.append(pooled_val)
+                    x_crop = x[:, y1:y2, :]
+                    xm = K.reshape(x_crop, new_shape)
+                    pooled_val = K.max(xm, axis=(1))
+                    outputs.append(pooled_val)
 
         if self.dim_ordering == 'th':
             outputs = K.concatenate(outputs)

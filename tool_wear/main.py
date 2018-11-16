@@ -10,6 +10,8 @@ fixedIntervalData = FixedIntervalDataset()
 x = fixedIntervalData.get_all_loc_x_sample_data()
 y = fixedIntervalData.get_all_loc_y_sample_data()
 
+y = np.max(y,axis=1)
+
 # shuffle the dataset
 import random
 # set random seeds so that we can get the same random data!
@@ -46,13 +48,13 @@ SAMPLE y shape :%s
 """%(x.shape,y.shape))
 
 # -------------CONFIGURATION------------------
-LOG_DIR = "KERAS_ROI_POOLING_LOG/"
+LOG_DIR = "MAX_KERAS_ROI_LOG/"
 PREDICT = False
 DROPOUT_RATE = 0.1
 # -------------END----------------------------
 
 for DEPTH in [20,15,10]:
-    TRAIN_NAME = "change_logcosh_resnet_SPP_depth_%s_dropout_%s" %(DEPTH,DROPOUT_RATE)
+    TRAIN_NAME = "Pyramid_lower_logcosh_resnet_SPP_depth_%s_dropout_%s" %(DEPTH,DROPOUT_RATE)
     MODEL_NAME = "%s.kerasmodel"%(TRAIN_NAME)
     MODEL_WEIGHT_NAME = "%s.kerasweight"%(TRAIN_NAME)
     MODEL_CHECK_PT = "%s.kerascheckpts"%(TRAIN_NAME)
@@ -73,7 +75,7 @@ SAMPLE TRAIN y shape :%s
         tb_cb = TensorBoard(log_dir=LOG_DIR+TRAIN_NAME)
         ckp_cb = ModelCheckpoint(MODEL_CHECK_PT,monitor='val_loss',save_weights_only=True,verbose=1,save_best_only=True,period=5)
 
-        model = build_resnet_with_roi_pooling(7,3,block_number=DEPTH,dropout_rate=DROPOUT_RATE)
+        model = build_resnet_with_roi_pooling(7,1,block_number=DEPTH,dropout_rate=DROPOUT_RATE)
         print(model.summary())
         print("MODEL has been built ...")
         if os.path.exists(MODEL_CHECK_PT):

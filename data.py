@@ -60,7 +60,7 @@ class FixedIntervalDataset(object):
         # reduce sample freq for accelerating speed
         # secondary sampling
 
-        interval = 25
+        interval = 100
 
         print('# Num %s, total %s, interval %s, that should be %s' % (num, len(pd_data.values), interval,len(pd_data.values)// interval))
 

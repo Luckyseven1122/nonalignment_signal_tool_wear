@@ -2,7 +2,7 @@ from keras.models import Model
 from keras.layers.convolutional import Conv1D,MaxPooling1D
 from keras.layers.merge import add
 from keras.layers import Dropout,Dense,Activation,Flatten,BatchNormalization,Input
-from keras.optimizers import Adam
+from keras.optimizers import Adam,Nadam
 from tool_wear.layers_utils import SpatialPyramidPooling
 
 def preprocess_block(tensor_input,filter_number_list,kernel_size=5,pooling_size=2,dropout_rate=0.5):
@@ -46,13 +46,13 @@ def build_resnet_with_roi_pooling(input_dim,output_dim,block_number=20,dropout_r
 
     signal_input = Input(shape=(None,input_dim))
 
-    out = Conv1D(128,3,strides=1,use_bias=False,kernel_initializer="he_uniform")(signal_input)
+    out = Conv1D(16,3,strides=1,use_bias=False,kernel_initializer="he_uniform")(signal_input)
     out = BatchNormalization()(out)
     out = Activation('relu')(out)
 
-    out = preprocess_block(out, (64, 128), dropout_rate=dropout_rate)
+    out = preprocess_block(out, (16, 16), dropout_rate=dropout_rate)
 
-    base_filter = 4
+    base_filter = 16
     block_part_num = 5
 
     total_times = block_number // block_part_num
@@ -63,6 +63,7 @@ def build_resnet_with_roi_pooling(input_dim,output_dim,block_number=20,dropout_r
             is_first_layer = True
         filter_times = total_times - cur_layer_num // block_part_num
         filter = (base_filter * (2 ** (filter_times)), base_filter * (2 ** (filter_times)))
+        filter = ( base_filter * (2 ** (cur_layer_num// block_part_num)),base_filter * (2 ** (cur_layer_num// block_part_num)) )
         out = repeated_block(out, filter, dropout_rate=dropout_rate,is_first_layer_of_block=is_first_layer)
 
     out = SpatialPyramidPooling([1,2,4])(out)
@@ -72,7 +73,7 @@ def build_resnet_with_roi_pooling(input_dim,output_dim,block_number=20,dropout_r
     out = Dense(output_dim)(out)
 
     model = Model(inputs=[signal_input], outputs=[out])
-    adam = Adam(lr=0.005)
+    nadam = Nadam()
 
-    model.compile(loss='logcosh', optimizer=adam, metrics=['mse', 'mae'])
+    model.compile(loss='logcosh', optimizer=nadam, metrics=['mse', 'mae'])
     return model

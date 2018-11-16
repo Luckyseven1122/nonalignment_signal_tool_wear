@@ -5,9 +5,15 @@ This is a program for predicting tool wear and tool's RUL estimation for a high-
 
 Due to copyright, we can't provide the source data.
 
-# Plan
+# Content
 
-We are going to apply SPP-Net for single-condition TCM.
+apply SPP-Net for single-condition TCM.
+
+# Current Status
+
+Not so fine now because of the lack of GPU's computer capacity
+
+MAE loss is still around 30+
 
 # LICENSE
 
